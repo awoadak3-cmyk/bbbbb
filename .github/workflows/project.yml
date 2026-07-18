@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # استبدال التحديد اليدوي بأداة تقوم بإيجاد وتفعيل Xcode 16 تلقائياً
+      # تحديد وتفعيل إصدار Xcode 16 تلقائياً
       - name: Setup Xcode version
         uses: maxim-lobanov/setup-xcode@v1
         with:
@@ -33,6 +33,7 @@ jobs:
       - name: Generate Xcode project
         run: xcodegen generate
 
+      # أضفنا سطر SYMROOT=./build لتجميع التطبيق في مجلد واضح داخل المشروع
       - name: Build (Simulator, no code signing for iOS 17)
         run: |
           xcodebuild \
@@ -42,7 +43,15 @@ jobs:
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
             IPHONEOS_DEPLOYMENT_TARGET=17.0 \
+            SYMROOT=./build \
             build
+
+      # خطوة جديدة لرفع التطبيق المستخرج لتتمكن من تحميله
+      - name: Upload Built App
+        uses: actions/upload-artifact@v4
+        with:
+          name: AuroraStream-Simulator-App
+          path: AuroraStreamiOS/build/Debug-iphonesimulator/AuroraStream.app
 
       - name: Run unit tests (if any for iOS 17)
         run: |
@@ -52,4 +61,5 @@ jobs:
             -destination "platform=iOS Simulator,name=iPhone 15" \
             CODE_SIGNING_ALLOWED=NO \
             IPHONEOS_DEPLOYMENT_TARGET=17.0 \
+            SYMROOT=./build \
             test || echo "No tests configured yet — skipping."
