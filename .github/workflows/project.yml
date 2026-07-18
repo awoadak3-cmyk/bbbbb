@@ -33,7 +33,7 @@ jobs:
       - name: Generate Xcode project
         run: xcodegen generate
 
-      - name: Build (Simulator, no code signing)
+      - name: Build (Simulator, no code signing for iOS 17)
         run: |
           xcodebuild \
             -project AuroraStream.xcodeproj \
@@ -41,13 +41,15 @@ jobs:
             -destination "generic/platform=iOS Simulator" \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
+            IPHONEOS_DEPLOYMENT_TARGET=17.0 \
             build
 
-      - name: Run unit tests (if any)
+      - name: Run unit tests (if any for iOS 17)
         run: |
           xcodebuild \
             -project AuroraStream.xcodeproj \
             -scheme AuroraStream \
             -destination "platform=iOS Simulator,name=iPhone 15" \
             CODE_SIGNING_ALLOWED=NO \
+            IPHONEOS_DEPLOYMENT_TARGET=17.0 \
             test || echo "No tests configured yet — skipping."
